@@ -1,20 +1,33 @@
 ;;idiomatic wrapper around BrickPiJava motor classes
 (ns cljbrickpi.motor
-  (:require [cljbrickpi.util :refer get!])
+  (:require [cljbrickpi.util :refer [get!]])
   (:import [com.ergotech.brickpi.motion Motor  MotorPort]
            [com.ergotech.brickpi BrickPiCommunications]))
 
-(def direction
-  {:clockwise         Motor$Direction/CLOCKWISE 
-   :counter-clockwise Motor$Direction/COUNTER_CLOCKWISE})
+;;helper macro for really long inner class name.
+(defmacro Direction [x]
+  `~(symbol (str "com.ergotech.brickpi.motion.Motor$Direction/" x)))
 
-(defn dir [k] (get! direction dir))
+(def direction
+  {:clockwise         (Direction CLOCKWISE) 
+   :counter-clockwise (Direction COUNTER_CLOCKWISE)
+   (Direction CLOCKWISE) :clockwise
+   (Direction COUNTER_CLOCKWISE) :counter-clockwise})
+
+(def motorports
+  {:a MotorPort/MA
+   :b MotorPort/MB
+   :c MotorPort/MC
+   :d MotorPort/MD
+   })
+   
+ 
 ;;should we create a custom type?
 ;;something that extends java.util.Map?
 
 ;;creates the motor, sets ticks/rever to 1440
 (defn ->motor [] (Motor.))
-(defn ^BrickPiCommunications get-brickpi [m] (.getBrickPi))
+(defn ^BrickPiCommunications get-brickpi [m] (.getBrickPi m))
 ;;we can dual-purpose this, to drop a motor we set the
 ;;instance to null.
 (defn set-brickpi
@@ -100,9 +113,9 @@
   [m co]
   (doto m (.setCommandedOutput (int co))))
 
-(defn direction [m] (direction->dir (.getDirection m)))
+(defn direction [m] (get! direction (.getDirection m)))
 (defn set-direction [m dir]
-  (doto m (.setDirection  (dir->direction dir))))
+  (doto m (.setDirection  (get! direction dir))))
 
 (defn enabled?
   "Returns the state of the enabled flag.
@@ -126,3 +139,4 @@
    @param commandedOutput the speed at which to perform the rotation."
   [m rotations commanded-output]
   (doto m (.rotate (double rotations) (int commanded-output))))
+

@@ -1,0 +1,6 @@
+(ns cljbrickpi.sensor
+  (:require [cljbrickpi.util :refer get!])
+  
+  (:import [com.ergotech.brickpi.sensors
+            Sensor SensorPort SensorType TouchSensor] 
+           [com.ergotech.brickpi BrickPiCommunications]))

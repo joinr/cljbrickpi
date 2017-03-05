@@ -10,6 +10,7 @@
   :plugins [[lein-localrepo "0.5.3"]
             [brightnorth/uberjar-deploy "1.0.1"]]
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
+                 [org.slf4j/slf4j-api "1.7.12"]
                  [com.ergotech/brickpi "1.0-SNAPSHOT"]]
   :aliases {"jar"    "uberjar"
             "deploy" "uberjar-deploy"}

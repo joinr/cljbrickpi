@@ -1,8 +1,8 @@
 (ns cljbrickpi.brick
+  (:require [cljbrickpi [sensor :as s] [motor :as m]])
   (:import
    [com.ergotech.brickpi
-    BrickPi RemoteBrickPi BrickPiCommunications])
-  )
+    BrickPi RemoteBrickPi BrickPiCommunications]))
 
 ;;optionally shove this in a single instance.
 (defn ->brickpi [] (BrickPi/getBrickPi))

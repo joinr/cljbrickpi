@@ -1,10 +1,11 @@
 (ns cljbrickpi.sensor
-  (:require [cljbrickpi.util :refer get!])
+  (:require [cljbrickpi.util :refer [get!]])
   (:import [com.ergotech.brickpi.sensors
             Sensor SensorPort SensorType TouchSensor] 
            [com.ergotech.brickpi BrickPiCommunications]))
 
 
+  
 (def sensors
   {:ultrasonic SensorType/Ultrasonic
    :ultrasonicss  SensorType/UltrasonicSS
@@ -19,8 +20,10 @@
    :s4 SensorPort/S4
    })
 
+
 (defn ->sensor [stype]
-  (let [res(get sensors stype)]
+  (let [res (get sensors stype)]
     (case res
       :touch (TouchSensor.)
-      (Sensor. (get! sensors type)))))
+      (Sensor. res))))
+

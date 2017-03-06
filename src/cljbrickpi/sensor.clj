@@ -22,6 +22,9 @@
    :s4 SensorPort/S4
    })
 
+(defn ^SensorPort sensor-port [x]
+  (get! ports x))
+
 
 (defn sensor? [x]
   (isa? (class x)
@@ -37,4 +40,5 @@
 
 (defn sensor-value [^Sensor s]
   (.getValue s))
-  
+
+;;adding EV3 IR sensor types.

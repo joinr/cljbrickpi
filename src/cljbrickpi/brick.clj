@@ -5,7 +5,9 @@
              [util :refer [get!]]])
   (:import
    [com.ergotech.brickpi
-    BrickPi RemoteBrickPi BrickPiCommunications]))
+    BrickPi RemoteBrickPi BrickPiCommunications
+    BrickPiUpdateListener]
+   [com.ergotech.brickpi.motion Motor]))
 
 ;;optionally shove this in a single instance.
 (defn ->brickpi [] (BrickPi/getBrickPi))
@@ -13,28 +15,53 @@
   (doto (RemoteBrickPi.)
         (.setPiAddress (str ip))))
 
-(defn set-sensor [pi port stype]
+(defn set-sensor [^BrickPiCommunications pi port stype]
   (doto pi
     (.setSensor (s/->sensor stype) (get! s/ports port))))
 
 ;;             brickPi.setupSensors();
-(defn setup-sensors [pi]
+(defn setup-sensors [^BrickPiCommunications pi]
   (doto pi (.setupSensors)))
 
+(defn update-values
+  "Polls the pi for new values."
+  [^BrickPiCommunications p]
+  (.updateValues p))
+
+(defn add-listener
+  [^BrickPiCommunications p ^BrickPiUpdateListener l] 
+ (.addBrickPiUpdateListener p l)
+  )
+                    
 ;;note: we could abstract the pi behind a simpler
 ;;interface, using a map-like deal to assoc onto
 ;;the named ports.
-(defn sensor-value [pi port]
+(defn sensor-value [^BrickPiCommunications pi port]
   (-> pi
-      (.getSensor (get! s/ports port))
-      (.getValue)))
+      (.getSensor (s/sensor-port port))
+      (s/sensor-value)))
 
 ;brickPi.setMotor(motor, MotorPort.MA)
 
-(defn set-motor [pi port m]
+(defn set-motor
+  [^BrickPiCommunications pi port ^Motor m]
   (doto pi
-    (.setMotor m (get! m/motorports port))))
+    (.setMotor m (m/motor-port port))))
 
+(defn ^BrickPiUpdateListener ->listener [f]
+  (reify BrickPiUpdateListener
+    (updateReceived [this source]
+      (f source)
+    )))
+
+;;called on updates.
+(defn add-listener [pi f]
+  (doto pi (.addBrickPiUpdateListener
+            (->listener f))))
+(defn remove-listener
+  [pi ^BrickPiUpdateListener l]
+  (doto pi (.removeBrickPiUpdateListener l))
+  )
 ;;setup a motor on MA, a touch sensor on S1
 ;;rotate the motor until the touch sensor
 ;;is pressed.

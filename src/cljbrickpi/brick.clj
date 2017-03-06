@@ -83,6 +83,34 @@
                   (set-motor  :a ma)
                   (setup-sensors))
         ]
-    (m/rotate ma 1 50)
-              
-  ))
+    (m/rotate ma 1 50)))
+
+(defn poll! [sensors]
+  (reduce-kv
+   (fn [_ k v]
+     (println [k (s/sensor-value v)]))
+   nil sensors))
+
+(defn sensor-test []
+  (let [ma     (m/->motor)   ;;create motor
+        md     (m/->motor)
+        touch  (s/->sensor :ev3touch)
+        remote (s/->sensor :ev3-infrared-remote)
+        sensors {:touch touch :remote remote}
+        out *out*
+                      
+        bp     (-> (->brickpi) ;;get a handle      
+                   (set-sensor :s3 remote)
+                   (set-sensor :s1 touch)
+                   (set-motor  :a ma)
+                   (set-motor  :d md)
+                   (setup-sensors))
+        ]
+    {:bp bp
+     :sensors sensors}))
+
+(defn test-it [{:keys [bp sensors]}]
+  (dotimes [i 1000]
+    (do (poll! sensors)
+        (Thread/sleep 200))))
+
